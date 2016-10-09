@@ -5,20 +5,22 @@ Created on 15. Sep. 2016
 @author: chof
 '''
 
-from phpdbgit import Config, DbDump, GitAnalyzer
-from subprocess import call
+from phpdbgit import Config, DbDump, GitAnalyzer, astring, DBConfig
 import getopt
 import sys
-import logging
 import phpdbgit
 
+
 def usage():
-    
+#***************************************************************************    
     pass
+
 global environment
+global cfg
+global dbdumps
 
 if __name__ == '__main__':
-    environment = "dev"
+    environment = None
     verbosity = 0
     
     try:
@@ -41,26 +43,35 @@ if __name__ == '__main__':
         usage()
 
     cfg = Config(projectpath)
+    
+    if environment == None:
+        environment = cfg.environments
+    else:
+        cfg.environments = environment
+        
     if verbosity > 0 :
         cfg.setLoggingVerbosity(verbosity)
+    
+    dbconfig = DBConfig(cfg)
     dbdumps = DbDump(cfg)
     
     if (command == 'snapshot'):
-        for env in environment:
-            cfg.logger.info("Make all database snapshots for %s" % (env))
-            dbdumps.makealldumps(env)
+        dbconfig.snapshot()
             
     elif (command == 'restore'):
-        gitAnalyzer = GitAnalyzer(cfg)
-        dump = gitAnalyzer.getNewestDumpCommit(cfg.getHead(), dbdumps.getAllDumpHashs())
-        for env in environment:
-            cfg.logger.info("Restore databases for %s from %s" % (env, dump))
-            dbdumps.restorealldumpsforcommit(dump, env) 
+        dbconfig.restore()
+
+    elif (command == 'switch'):
+        dbconfig.switch()
+        
+    elif (command == 'checkout'):
+        dbconfig.checkout()
         
     elif (command == 'execute'):
-        try:
-            result = dbdumps.executeScript(script, environment)
+        try: 
+            dbconfig.execute(script)
         except EnvironmentError as e:
             cfg.logger.error(e)
+
 
     pass

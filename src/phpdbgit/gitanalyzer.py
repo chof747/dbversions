@@ -4,10 +4,15 @@ Created on 16. Sep. 2016
 @author: chof
 '''
 
-from phpdbgit import astring    
+from phpdbgit import astring   
+from git import Commit 
 import sys
-import copy
+import json
+import os
 import operator
+
+class InvalidBranch(Exception):
+    pass
 
 class GitAnalyzer(object):
     '''
@@ -24,15 +29,7 @@ class GitAnalyzer(object):
         '''
         self.cfg = config
         
-        
-    def collectAllSetupCommits(self):
-    #***************************************************************************
-        setupcommits = []
-        for c in self.cfg.repo.iter_commits(None, self.cfg.setupscriptpath):
-            setupcommits.append(c)
-        
-        return setupcommits
-    
+            
     def getNewestDumpCommit(self, head, dumps):
     #***************************************************************************        
         c = head
@@ -50,7 +47,22 @@ class GitAnalyzer(object):
             
         return dump
     
-    
+    def checkout(self):
+        self._loadBranchIndex()
+        branchname = self.cfg.repo.active_branch.name
+        newbranch = False
+        
+        if (not self.branchIndex.has_key(branchname)):
+            self.branchIndex[branchname] = self.cfg.getHead().hexsha
+            newbranch = True
+            self._saveBranchIndex()
+
+        return (Commit(self.cfg.repo,  
+                       astring(self.branchIndex[branchname]).decode('hex')),
+                branchname,
+                newbranch)  
+        
+        
     
     def traverse(self, head, stop):
         '''
@@ -66,7 +78,7 @@ class GitAnalyzer(object):
         
         4. at the end move to the next entry in the queue
         '''
-        
+    #***************************************************************************    
         paths = []
         queue = []
         queue.append((head, []))
@@ -92,7 +104,19 @@ class GitAnalyzer(object):
                 commit = commit.parents[0]
 
         return paths
-                    
+    
+    def _loadBranchIndex(self):
+    #***************************************************************************
+        self.branchIndex = {}                
+        if (os.path.isfile(self.cfg.branchIndexFile)):
+            with open(self.cfg.branchIndexFile) as f:
+                self.branchIndex = json.load(f)        
+        return self.branchIndex
+    
+    def _saveBranchIndex(self):
+    #***************************************************************************
+        with open(self.cfg.branchIndexFile, 'w') as f:
+            json.dump(self.branchIndex, f, ensure_ascii=True)        
 
     def _extractScripts(self, head, dump):
     #***************************************************************************
@@ -144,3 +168,4 @@ class GitAnalyzer(object):
     def extractSetupScripts(self, commit):
     #***************************************************************************
         return self.getFilesOfCommit(commit, self.cfg.setupscriptpath)
+    

@@ -11,6 +11,7 @@ def astring(s):
 from config import Config 
 from phpdbgit.db import DbDump
 from gitanalyzer import GitAnalyzer
+from DBConfig import DBConfig
 
 def parseEnvironments(option):
     envs = option.split(',')

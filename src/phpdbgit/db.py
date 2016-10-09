@@ -20,22 +20,22 @@ class DbDump(object):
 
 
     def __init__(self, config):
+    #***************************************************************************
         '''
         Constructor
         '''
         self.cfg = config
         self.logger = logging.getLogger('phpdbgit')
-        pass
+        pass    
     
     def makealldumps(self, environment):
+    #***************************************************************************
         dbs = self.cfg.databases(environment)
         for db in dbs:
             self.makedump(db)
             
-    def _getOutputName(self):
-        return self.cfg.outputpath + '/' + self.cfg.getHeadHash()
-        
     def makedump(self, database):
+    #***************************************************************************
         
         out = self._getOutputName()
         commit = self.cfg.getHeadHash()
@@ -61,12 +61,14 @@ class DbDump(object):
             call(dumpparams, stdout = f)
         
     def restorealldumpsforcommit(self, commit, env):
+    #***************************************************************************
         databases = self.cfg.databases(env)
         for database in databases:
             self.restoredump(database, commit)
         
 
     def restoredump(self, database, commit):
+    #***************************************************************************
         dumpfile = self.cfg.outputpath + "/" + astring(commit) + "/" + database + ".sql" 
         
         self.cfg.logger.info("Restoring database %s from dump at commit %s" % 
@@ -80,6 +82,7 @@ class DbDump(object):
             self.cfg.logger.warn("No dump for %s stored in %s" % (database, commit))
             
     def getAllDumpHashs(self):
+    #***************************************************************************
         names = []
         for name in [name for name in os.listdir(self.cfg.outputpath)
             if os.path.isdir(os.path.join(self.cfg.outputpath, name))] :
@@ -88,7 +91,34 @@ class DbDump(object):
                 
         return names
     
+    def executeScript(self, script, environment):
+    #***************************************************************************
+        dbs = self.cfg.databases(None)
+        scripttext = ""
+        with open(script, 'rt') as scriptin:
+            for line in scriptin:
+                for db in dbs:
+                    database = self.cfg.getDBName(db, environment)
+                    if (database != ""):
+                        line = line.replace("{%s}" % (db), database)
+                    else:
+                        raise EnvironmentError("%s does not have an environment %s" % (db, environment))
+                scripttext = scripttext + line
+        
+        self.cfg.logger.info("Execute SQL script %s on %s" % (script, environment))
+        try:
+            self._execute(scripttext)
+            return True
+        except SQLExecutionError as err:
+            self.cfg.logger.error("Error during execution of %s: %s" % (script, err))
+            return False
+
+    def _getOutputName(self):
+    #***************************************************************************
+        return self.cfg.outputpath + '/' + self.cfg.getHeadHash()
+        
     def _execute(self, script):
+    #***************************************************************************
         pid = Popen(['mysql'], stdin = subprocess.PIPE, stderr = subprocess.PIPE)
         out, err = pid.communicate(script)
         pid.wait()
@@ -97,26 +127,5 @@ class DbDump(object):
             raise SQLExecutionError(err)
         else:
             return 0
-        
-    
-    def executeScript(self, script, env):
-        dbs = self.cfg.databases(None)
-        scripttext = ""
-        with open(script, 'rt') as scriptin:
-            for line in scriptin:
-                for db in dbs:
-                    database = self.cfg.getDBName(db, env)
-                    if (database != ""):
-                        line = line.replace("{%s}" % (db), database)
-                    else:
-                        raise EnvironmentError("%s does not have an environment %s" % (db, env))
-                scripttext = scripttext + line
-        
-        self.cfg.logger.info("Execute SQL script %s" % (script))
-        try:
-            self._execute(scripttext)
-            return True
-        except SQLExecutionError as err:
-            self.cfg.logger.error("Error during execution of %s: %s" % (script, err))
-            return False
+          
         

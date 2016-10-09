@@ -62,8 +62,12 @@ if __name__ == '__main__':
             print "---------------\nPath: %d" % (i)
             
             for c in path:
-                print "  %s" % (c.hexsha)
-                
+              print "  %s" % (c.hexsha)
+
+    elif (command == 'branch'):
+        gitAnalyzer = GitAnalyzer(cfg)
+        print gitAnalyzer.checkout()
+                        
     elif (command == 'scripts'):
         gitAnalyzer = GitAnalyzer(cfg)
         scripts = gitAnalyzer.extractDBChanges(cfg.getHead(), gitAnalyzer.getNewestDumpCommit(cfg.getHead(), dumps.getAllDumpHashs()))
