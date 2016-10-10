@@ -4,7 +4,7 @@ Created on 16. Sep. 2016
 @author: chof
 '''
 
-from phpdbgit import astring   
+from dbversions import astring   
 from git import Commit 
 import sys
 import json

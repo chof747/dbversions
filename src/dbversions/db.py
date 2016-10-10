@@ -3,12 +3,11 @@ Created on 16. Sep. 2016
 
 @author: chof
 '''
-
 import os
 import subprocess
 import logging
 from subprocess import call, Popen
-from phpdbgit import astring
+from dbversions import astring
 
 class SQLExecutionError(Exception):
     pass

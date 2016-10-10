@@ -5,7 +5,7 @@ Created on 15. Sep. 2016
 @author: chof
 '''
 
-from phpdbgit import *
+from dbversions import *
 from subprocess import call
 import getopt
 import sys

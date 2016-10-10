@@ -9,7 +9,7 @@ def astring(s):
     return s
 
 from config import Config 
-from phpdbgit.db import DbDump
+from db import DbDump
 from gitanalyzer import GitAnalyzer
 from DBConfig import DBConfig
 

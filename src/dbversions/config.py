@@ -8,7 +8,7 @@ import json
 import os
 
 from git import Repo
-from phpdbgit import astring
+from dbversions import astring
 import logging
 
 
@@ -58,7 +58,7 @@ class Config(object):
         
         logging.basicConfig(format=parameters['logger']['logformat'],
                             datefmt=parameters['logger']['logdatefmt'])
-        self.logger = logging.getLogger('phpdbgit')
+        self.logger = logging.getLogger('dbversions')
         self.setLoggingVerbosity(parameters['logger']['default-verbosity'])
         self.environments = parameters['environments']
             

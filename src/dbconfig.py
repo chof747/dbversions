@@ -5,10 +5,9 @@ Created on 15. Sep. 2016
 @author: chof
 '''
 
-from phpdbgit import Config, DbDump, GitAnalyzer, astring, DBConfig
+from dbversions import Config, DbDump, DBConfig, parseEnvironments
 import getopt
 import sys
-import phpdbgit
 
 
 def usage():
@@ -33,7 +32,7 @@ if __name__ == '__main__':
             elif option in ["-s", "--script"]:
                 script = value 
             elif option in ['-e', '--env']:
-                environment = phpdbgit.parseEnvironments(value)
+                environment = parseEnvironments(value)
             elif option in ['-v']:
                 verbosity = verbosity + 1
             else:
