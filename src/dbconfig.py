@@ -66,6 +66,11 @@ if __name__ == '__main__':
     elif (command == 'checkout'):
         dbconfig.checkout()
         
+    elif (command == 'merge'):
+        main = cfg.getHeadOfBranch(args.pop(0))
+        topic = cfg.getHeadOfBranch(args.pop(0))
+        dbconfig.merge(main, topic)
+        
     elif (command == 'execute'):
         try: 
             dbconfig.execute(script)

@@ -5,8 +5,7 @@ Created on 15. Sep. 2016
 @author: chof
 '''
 
-from dbversions import *
-from subprocess import call
+from dbversions import Config, GitAnalyzer, DbDump
 import getopt
 import sys
 
@@ -18,6 +17,8 @@ global environment
 if __name__ == '__main__':
     environment = "dev"
     
+    branches = []
+    
     try:
         command = sys.argv[1]
         optlist, args = getopt.getopt(sys.argv[2:], 'p:', ["projectpath="])
@@ -26,7 +27,11 @@ if __name__ == '__main__':
             if option in ["-p", "--projectpath"]:
                 projectpath = value
             else:
-                assert False, "unhandled option"    
+                branches.append(value)
+                
+        for branch in args:
+            branches.append(branch)
+                
     except getopt.GetoptError as e:
         print str(e)
         usage()
@@ -62,11 +67,23 @@ if __name__ == '__main__':
             print "---------------\nPath: %d" % (i)
             
             for c in path:
-              print "  %s" % (c.hexsha)
+                print "  %s" % (c.hexsha)
 
     elif (command == 'branch'):
         gitAnalyzer = GitAnalyzer(cfg)
         print gitAnalyzer.checkout()
+        
+    elif (command == 'log'):
+        gitAnalyzer = GitAnalyzer(cfg)
+        master = cfg.repo.active_branch
+        print len(master.log())
+        
+    elif (command == 'lca'):
+        gitAnalyzer = GitAnalyzer(cfg)
+        a = cfg.repo.heads[branches[0]].commit
+        b = cfg.repo.heads[branches[1]].commit
+        print gitAnalyzer.findLatestCommonAnchestor(a, b)
+        
                         
     elif (command == 'scripts'):
         gitAnalyzer = GitAnalyzer(cfg)

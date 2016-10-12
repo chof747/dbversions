@@ -5,10 +5,7 @@ Created on 16. Sep. 2016
 '''
 
 from dbversions import astring   
-from git import Commit 
 import sys
-import json
-import os
 import operator
 
 class InvalidBranch(Exception):
@@ -48,20 +45,50 @@ class GitAnalyzer(object):
         return dump
     
     def checkout(self):
-        self._loadBranchIndex()
+    #***************************************************************************        
         branchname = self.cfg.repo.active_branch.name
-        newbranch = False
+        newbranch = self.isNewBranch(self.cfg.repo.active_branch)
         
-        if (not self.branchIndex.has_key(branchname)):
-            self.branchIndex[branchname] = self.cfg.getHead().hexsha
-            newbranch = True
-            self._saveBranchIndex()
-
-        return (Commit(self.cfg.repo,  
-                       astring(self.branchIndex[branchname]).decode('hex')),
-                branchname,
-                newbranch)  
+        return (self.cfg.getHead(), branchname, newbranch)
         
+        
+    def isNewBranch(self, branch):
+    #***************************************************************************
+        return len(branch.log()) == 1
+        
+    def parentChain(self, commit):
+        '''
+        produces the list of direct ancestors (parent no 1) for a given commit up
+        to the root node.
+        
+        Returns this list in reverse order with the youngest anchestor first
+        '''
+    #***************************************************************************    
+        chain = []
+        while len(commit.parents) > 0:
+            chain.append(commit)
+            commit = commit.parents[0]
+        
+        chain.append(commit)
+            
+        return chain
+    
+    def findLatestCommonAnchestor(self, a, b):
+    #***************************************************************************    
+        chainA = self.parentChain(a)
+        chainB = self.parentChain(b)
+        
+        #print(chainA)
+        #print('===')
+        #print(chainB)
+        lca = None
+                
+        while ((len(chainA)>0) and (len(chainB)>0) and 
+               (chainA[-1] == chainB[-1])):
+            lca = chainA.pop()
+            chainB.pop()
+            
+        return lca
         
     
     def traverse(self, head, stop):
@@ -105,19 +132,6 @@ class GitAnalyzer(object):
 
         return paths
     
-    def _loadBranchIndex(self):
-    #***************************************************************************
-        self.branchIndex = {}                
-        if (os.path.isfile(self.cfg.branchIndexFile)):
-            with open(self.cfg.branchIndexFile) as f:
-                self.branchIndex = json.load(f)        
-        return self.branchIndex
-    
-    def _saveBranchIndex(self):
-    #***************************************************************************
-        with open(self.cfg.branchIndexFile, 'w') as f:
-            json.dump(self.branchIndex, f, ensure_ascii=True)        
-
     def _extractScripts(self, head, dump):
     #***************************************************************************
         scripts = {}
@@ -136,7 +150,8 @@ class GitAnalyzer(object):
             if (set(scripts).issubset(set(pathscripts))):
                 scripts = pathscripts
             else:
-                raise Exception('Branches contain conflicting DB scripts')
+                raise Exception('Branches contain conflicting DB scripts %s\n---\n%s' %
+                                (' '.join(scripts.keys()), ' '.join(pathscripts.keys())))
         
         return scripts
 

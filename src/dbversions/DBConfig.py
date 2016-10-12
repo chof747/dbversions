@@ -4,6 +4,7 @@ Created on 09. Okt. 2016
 @author: chof
 '''
 
+from dbversions import astring
 from gitanalyzer import GitAnalyzer
 from db import DbDump
 
@@ -37,10 +38,12 @@ class DBConfig(object):
     
     returns the dump commit
     '''
-    def restore(self):
+    def restore(self, dump = None):
     #***************************************************************************    
+        
         dump = self.gitAnalyzer.getNewestDumpCommit(self.cfg.getHead(), 
-                                                    self.db.getAllDumpHashs())
+                self.db.getAllDumpHashs()) if dump == None else dump
+                
         for env in self.environments:
             self.logger.info("Restore databases for %s from %s" % (env, dump))
             self.db.restorealldumpsforcommit(dump, env) 
@@ -76,6 +79,20 @@ class DBConfig(object):
             self.switch()
         
     
+    def merge(self, main, topic):
+    #***************************************************************************    
+        lca = self.gitAnalyzer.findLatestCommonAnchestor(main.commit, topic.commit)
+        dump = self.gitAnalyzer.getNewestDumpCommit(lca, self.db.getAllDumpHashs())
+        
+        self.logger.info('Merging DB scripts from branch %s into %s' % 
+                         (astring(topic), astring(main)))
+        self.logger.debug('Branch point is %s' % (astring(lca)))
+        
+        self.restore(dump)
+        self._updateDBByScriptsFrom(dump)
+        
+        self.snapshot()
+    
     '''
     The switch command performs a switch of the given environments to the current
     db state of the branch.
@@ -91,8 +108,13 @@ class DBConfig(object):
     #***************************************************************************    
         self.logger.info("Switch to branch at head %s" % self.cfg.getHead())
         latestDump = self.restore()
-        scripts = self.gitAnalyzer.extractDBChanges(self.cfg.getHead(), latestDump)
+        self._updateDBByScriptsFrom(latestDump)
         
+    def _updateDBByScriptsFrom(self, latestDump):
+    #***************************************************************************    
+        scripts = self.gitAnalyzer.extractDBChanges(self.cfg.getHead(), latestDump)
         for script in scripts:
             self.execute(script[0])
+
+
     

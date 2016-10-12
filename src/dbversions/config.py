@@ -54,7 +54,6 @@ class Config(object):
         self.repo = Repo(self.repodir)
         self.outputpath = self.fullpath(parameters['dumpspath'])        
         self.setupscriptpath = self.fullpath(self._dbconfig['setupscripts'])
-        self.branchIndexFile = self.fullpath(self._dbconfig['branch-index'])
         
         logging.basicConfig(format=parameters['logger']['logformat'],
                             datefmt=parameters['logger']['logdatefmt'])
@@ -103,6 +102,9 @@ class Config(object):
     def getHead(self):
     #***************************************************************************
         return self.repo.commit('HEAD')
+    
+    def getHeadOfBranch(self, branch):
+        return self.repo.heads[branch]
     
     def getHeadHash(self):
     #***************************************************************************

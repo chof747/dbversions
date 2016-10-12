@@ -10,4 +10,5 @@ setup(name             = 'dbversions',
       version          = '0.7.1',
       author           = 'Eric PTAK',
       package_dir      = { '' : 'src' },
-      packages = ['dbversions'])
+      packages = ['dbversions'],
+      scripts=['src/dbconfig.py'] )
