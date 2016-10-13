@@ -11,6 +11,13 @@ import operator
 class InvalidBranch(Exception):
     pass
 
+class ConflictingDBScripts(Exception):
+    def __init__(self, msg, pathA, pathB):
+        Exception.__init__(self, msg)
+        self.pathA = pathA
+        self.pathB = pathB
+    
+
 class GitAnalyzer(object):
     '''
     classdocs
@@ -132,7 +139,7 @@ class GitAnalyzer(object):
 
         return paths
     
-    def _extractScripts(self, head, dump):
+    def _extractScripts(self, head, dump, ignoreConflicts = False):
     #***************************************************************************
         scripts = {}
         traverses = self.traverse(head, dump)
@@ -146,12 +153,19 @@ class GitAnalyzer(object):
                     #if not pathscripts.has_key(script):
                         pathscripts[script] = sequence, astring(c.hexsha)
                         sequence = sequence - 1
-            
+                        
             if (set(scripts).issubset(set(pathscripts))):
                 scripts = pathscripts
+            elif (set(pathscripts).issubset(set(scripts))):
+                pass
             else:
-                raise Exception('Branches contain conflicting DB scripts %s\n---\n%s' %
-                                (' '.join(scripts.keys()), ' '.join(pathscripts.keys())))
+                if ignoreConflicts:
+                    self.cfg.logger.warn('Conflicting scripts will be merged:\n  %s' %
+                                         ('\n  '.join(pathscripts)))
+                    scripts.update(pathscripts)
+                else:
+                    raise ConflictingDBScripts('Branches contain conflicting DB scripts',
+                        scripts,pathscripts)
         
         return scripts
 
