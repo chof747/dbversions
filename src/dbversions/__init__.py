@@ -1,4 +1,6 @@
 from git import Commit
+import os,sys
+import logging
 
 def astring(s):
     
@@ -7,6 +9,13 @@ def astring(s):
     elif isinstance(s, Commit):
         s = s.hexsha
     return s
+
+def getResourcePath(resource): 
+    return os.path.join(os.path.dirname(sys.modules['dbversions'].__file__), 
+                       resource)
+    
+VERBOSITY = [logging.ERROR, logging.WARN, logging.INFO, logging.DEBUG]
+        
 
 from config import Config 
 from db import DbDump

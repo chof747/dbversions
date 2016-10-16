@@ -8,7 +8,7 @@ import json
 import os
 
 from git import Repo
-from dbversions import astring
+from dbversions import astring, getResourcePath, VERBOSITY
 import logging
 
 
@@ -26,17 +26,16 @@ class Config(object):
     '''
     
     DBVERSION_CONFIG = '.dbversion'
-    
-    DEFAULTS = {
-        'dbconfig'  : 'database/db-config.json',
-        'dumpspath' : 'database/dumps',
-        'logger' : {
-            'default-verbosity' : 1,
-            'logformat'  : '[%(asctime)s | %(name)s | %(levelname)-5s]: %(message)s',
-            'logdatefmt' : '%Y-%m-%d %H:%M:%S'
-        },
-        'environments' : ['dev', 'test']
-    }
+        
+    @staticmethod
+    def enableDBVersionConfig(projectpath):
+        dbconfigfile = projectpath + '/' + Config.DBVERSION_CONFIG
+        if not os.path.isfile(dbconfigfile) :
+            import shutil
+            shutil.copyfile(getResourcePath('data/templates/dbversion-configfile.json'), 
+                            dbconfigfile)
+        
+        return dbconfigfile
     
     def __init__(self, projectpath):
         '''
@@ -63,7 +62,6 @@ class Config(object):
             
     def setLoggingVerbosity(self, verbosity):
     #***************************************************************************
-        VERBOSITY = [logging.ERROR, logging.WARN, logging.INFO, logging.DEBUG]
         if verbosity > 3:
             verbosity = 3            
         
@@ -112,10 +110,7 @@ class Config(object):
     
     def _readBaseConfig(self, projectpath):
     #***************************************************************************
-        dbconfigfile = projectpath + '/' + Config.DBVERSION_CONFIG
-        if not os.path.isfile(dbconfigfile) :
-            with open(dbconfigfile, 'w') as f:
-                json.dump(Config.DEFAULTS, f)
+        dbconfigfile = self.enableDBVersionConfig(projectpath)
         
         with open(dbconfigfile) as f:
             parameters = json.load(f)

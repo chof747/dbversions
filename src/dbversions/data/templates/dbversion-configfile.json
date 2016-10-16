@@ -1,0 +1,13 @@
+{
+  "dumpspath": "database/dumps", 
+  "logger": {
+    "logdatefmt": "%Y-%m-%d %H:%M:%S", 
+    "default-verbosity": 1, 
+    "logformat": "[%(asctime)s | %(name)s | %(levelname)-5s]: %(message)s"
+  }, 
+  "dbconfig": "database/db-config.json", 
+  "environments": [
+    "dev", 
+    "test"
+  ]
+}

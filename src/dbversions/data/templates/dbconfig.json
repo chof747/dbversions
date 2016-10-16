@@ -1,0 +1,19 @@
+{
+  "db-system": {
+    "name" : "mysql",
+    "version" : ">5.1"
+  }, 
+  "databases":{
+    "db1":{
+      "dev":"db1dev",
+      "test":"db1test",
+      "prod":"db1"
+    },
+    "db2":{
+      "dev":"db2dev",
+      "test":"db2test",
+      "prod":"db2"
+    }
+  },
+  "setupscripts": "database/setup",
+}
