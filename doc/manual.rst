@@ -52,6 +52,30 @@ Besides this basic workflow the tool has the following features:
 2. Installation
 ===============
 
+To install the tool you have the following possibilities:
+
+2.1 Install package from pip
+____________________________
+
+Simply install **dbversions** from PyPi with the following command::
+
+pip install dbversions
+
+This will install the tool in your standard python site packages and the scripts in an executable path. No further steps are necessary except for initializing a specific repository.
+
+2.2 Install from source
+_______________________
+
+
+When installing from source you have to 
+
+1. download the source distribution from ##add link here##. 
+
+2. extract the source into a new, empty directory 
+
+3. execute the setup script 
+
+
 3. Main Operations
 ==================
 
