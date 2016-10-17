@@ -31,7 +31,23 @@ install and requires specific formatting of your database change scripts.
 **dbversions** offers a third way which is not as powerful as liquibase_ or
 similar tools but offers basic operations in terms of different database 
 versions compared with an easy to use setup and integration into existing
-repositories.
+repositories. The basic concept is that :
+
+* snapshots of the databases of a project are stored for distinct commits
+  (e.g. at branch points or after a merge - but can be any commit)
+* on checkout of another branch the latest commits are restored and all
+  db scripts in a specific directory which have been added/changed since 
+  this commit are executed on the restored database to get the structure
+  for that specific branch
+* on merge take the database snapshot closest to the specific branch
+  point, restore it and execute all db scripts added/changed since then
+  in the old and new branch (thereby checking if scripts are conflicting)
+  
+Besides this basic workflow the tool has the following features:
+
+* setup generic scripts so that they can be executed on any environment
+* execute generic scripts on one, a set of or all of your environments
+* snapshot and restore database dumps related to any commit
 
 2. Installation
 ===============
