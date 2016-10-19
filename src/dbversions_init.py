@@ -60,7 +60,7 @@ def initRepository(path):
 #*******************************************************************************
     global  logger    
     dbpath = os.path.join(path, 'database')
-    dbconfig = os.path.join(dbpath, 'dbconfig.json')
+    dbconfig = os.path.join(dbpath, 'db-config.json')
 
     checkDatabasePath(dbpath)
     copyDBConfig(dbconfig)    
