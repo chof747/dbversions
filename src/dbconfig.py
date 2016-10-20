@@ -20,6 +20,7 @@ global dbdumps
 
 if __name__ == '__main__':
     environment = None
+    projectpath = '.'
     verbosity = 0
     
     try:
