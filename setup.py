@@ -12,7 +12,7 @@ with open('doc/package-description.rst', 'r') as f:
     packageDescription += f.read()
 
 setup(name             = 'dbversions',
-      version          = '0.5.0',
+      version          = '0.6.0',
       author           = 'Christian Hofbauer',
       author_email     = 'chof@gmx.at',
       description      = 'A python tool and package that helps to keep a ' + 
