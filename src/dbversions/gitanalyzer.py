@@ -5,7 +5,7 @@ Created on 16. Sep. 2016
 '''
 
 from dbversions import astring   
-import sys
+import sys, os
 import operator
 
 class InvalidBranch(Exception):
@@ -190,7 +190,10 @@ class GitAnalyzer(object):
             
         for f in diff:
             if f.b_path != None:
-                files += [ self.cfg.fullpath(f.b_path) ] 
+                artefact = self.cfg.fullpath(f.b_path)
+                extension = os.path.splitext(artefact)[1]
+                if (extension == '.sql'):
+                    files += [artefact] 
         return files
 
     
