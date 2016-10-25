@@ -5,14 +5,15 @@ Created on 09. Okt. 2016
 '''
 
 from setuptools import setup
+import os
 
 packageDescription = ''
 
-with open('doc/package-description.rst', 'r') as f:
+with open('README.rst', 'r') as f:
     packageDescription += f.read()
 
 setup(name             = 'dbversions',
-      version          = '0.6.1',
+      version          = '0.6.3',
       author           = 'Christian Hofbauer',
       author_email     = 'chof@gmx.at',
       description      = 'A python tool and package that helps to keep a ' + 
