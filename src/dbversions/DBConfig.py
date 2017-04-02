@@ -7,6 +7,8 @@ Created on 09. Okt. 2016
 from dbversions import astring
 from gitanalyzer import GitAnalyzer
 from db import DbDump
+from shutil import copyfile
+from os.path import join as joinPath, basename
 
 class DBConfig(object):
 
@@ -89,7 +91,12 @@ class DBConfig(object):
         self.logger.debug('Branch point is %s' % (astring(lca)))
         
         self.restore(dump)
-        self._updateDBByScriptsFrom(dump)
+        #self._updateDBByScriptsFrom(dump)
+        self.gitAnalyzer.extractDBChangesSimple(main.commit, dump)
+        print("##")
+        self.gitAnalyzer.extractDBChangesSimple(dump, topic.commit)
+        
+        
         
         self.snapshot()
     
@@ -109,6 +116,37 @@ class DBConfig(object):
         self.logger.info("Switch to branch at head %s" % self.cfg.getHead())
         latestDump = self.restore()
         self._updateDBByScriptsFrom(latestDump)
+        
+
+    def _listScripts(self):
+    #***************************************************************************    
+        scripts = self.gitAnalyzer.extractDBChanges(self.cfg.getHead(), self.gitAnalyzer.getNewestDumpCommit(self.cfg.getHead(), 
+                self.db.getAllDumpHashs()))
+        dbscripts = []
+        for script in scripts:
+            dbscripts.append(script[0])
+        
+        return dbscripts
+
+    def list(self):
+    #***************************************************************************    
+        dbscripts = self._listScripts()
+        print ",".join(dbscripts)
+        
+    def _buildScriptForEnvironment(self, outputPath, env):
+    #***************************************************************************    
+        dbscripts = self._listScripts()
+        runnumber = 1
+        for script in dbscripts:
+            dst = joinPath(outputPath, "%03d_%s_%s" %(runnumber, env, basename(script)))
+            self.logger.info("Copy %s to %s" % (script, dst))
+            copyfile(script, dst)
+            self.db.prepareScriptFor(dst, env)
+            runnumber += 1
+            
+    def build(self, outputPath):
+        for env in self.environments:
+            self._buildScriptForEnvironment(outputPath, env)
         
     def _updateDBByScriptsFrom(self, latestDump):
     #***************************************************************************    

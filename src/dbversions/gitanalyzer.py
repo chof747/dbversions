@@ -149,10 +149,8 @@ class GitAnalyzer(object):
             for c in traverse:
                 for script in self.extractSetupScripts(c):
                     #store the script with the hash of the commit as value
-                    #if the script is not present already
-                    #if not pathscripts.has_key(script):
-                        pathscripts[script] = sequence, astring(c.hexsha)
-                        sequence = sequence - 1
+                    pathscripts[script] = sequence, astring(c.hexsha)
+                    sequence = sequence - 1
                         
             if (set(scripts).issubset(set(pathscripts))):
                 scripts = pathscripts
@@ -168,6 +166,11 @@ class GitAnalyzer(object):
                         scripts,pathscripts)
         
         return scripts
+    
+    def extractDBChangesSimple(self, head, dump):
+    #***************************************************************************
+        return self._getDiffFilesBetweenCommits(
+            head.diff(dump, self.cfg.setupscriptpath))
 
     def extractDBChanges(self, head, dump):
     #***************************************************************************
@@ -179,23 +182,37 @@ class GitAnalyzer(object):
             
         return scripts
     
+
+    def _getDiffFilesBetweenCommits(self, diff):
+    #***************************************************************************
+        files = []
+        for f in diff:
+            if f.change_type == 'A':
+                artefact = self.cfg.fullpath(f.b_path)
+                extension = os.path.splitext(artefact)[1]
+                if (extension == '.sql'):
+                    files += [artefact]
+        
+        return files
+
     def getFilesOfCommit(self, commit, path):
     #***************************************************************************
         if not commit.parents:
             diff = commit.diff(GitAnalyzer.EMPTY_TREE_SHA, path)
+            files = self._getDiffFilesBetweenCommits(diff)
         else:
-            diff = commit.diff(commit.parents[0], path)
-            
-        files = []
-            
-        for f in diff:
-            if f.b_path != None:
-                artefact = self.cfg.fullpath(f.b_path)
-                extension = os.path.splitext(artefact)[1]
-                if (extension == '.sql'):
-                    files += [artefact] 
+            files = None
+            for p in commit.parents:
+                diff = p.diff(commit, path)
+                dfiles = self._getDiffFilesBetweenCommits(diff)
+                if files is None:
+                    files = dfiles
+                else:
+                    files = [f for f in files if f in dfiles]
+        if (files != None) and (len(files)>0):    
+            self.cfg.logger.debug("%s :\n .. %s" % 
+                                  (commit, "\n .. ".join(files)))
         return files
-
     
     def extractSetupScripts(self, commit):
     #***************************************************************************
