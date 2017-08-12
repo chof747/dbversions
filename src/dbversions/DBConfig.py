@@ -4,7 +4,6 @@ Created on 09. Okt. 2016
 @author: chof
 '''
 
-import os
 from dbversions import astring
 from gitanalyzer import GitAnalyzer
 from db import DbDump
@@ -57,7 +56,7 @@ class DBConfig(object):
     def execute(self, script):
     #***************************************************************************    
         for env in self.environments:
-            if (os.path.isfile(script)):            
+            if (isfile(script)):            
                 self.db.executeScript(script, env)
             else:
                 self.logger.warn("Script %s does not exist anymore and is therefore ignored!" % (script))
