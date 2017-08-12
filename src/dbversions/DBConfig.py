@@ -4,11 +4,12 @@ Created on 09. Okt. 2016
 @author: chof
 '''
 
+import os
 from dbversions import astring
 from gitanalyzer import GitAnalyzer
 from db import DbDump
 from shutil import copyfile
-from os.path import join as joinPath, basename
+from os.path import join as joinPath, basename, isfile
 
 class DBConfig(object):
 
@@ -56,7 +57,10 @@ class DBConfig(object):
     def execute(self, script):
     #***************************************************************************    
         for env in self.environments:
-            self.db.executeScript(script, env)
+            if (os.path.isfile(script)):            
+                self.db.executeScript(script, env)
+            else:
+                self.logger.warn("Script %s does not exist anymore and is therefore ignored!" % (script))
 
     
     '''
@@ -124,7 +128,8 @@ class DBConfig(object):
                 self.db.getAllDumpHashs()))
         dbscripts = []
         for script in scripts:
-            dbscripts.append(script[0])
+            if isfile(script[0]):
+                dbscripts.append(script[0])
         
         return dbscripts
 
