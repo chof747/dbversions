@@ -32,7 +32,16 @@ class DBConfig(object):
         for env in self.environments:
             self.logger.info("Make all database snapshots for %s" % (env))
             self.db.makealldumps(env)
+            if (self.cfg.structureFolder != None):
+                self.db.extractallstructures(env, self.cfg.fullpath(self.cfg.structureFolder))
 
+        if (self.cfg.structureFolder != None):
+            head = self.cfg.getHeadHash()
+            repo = self.cfg.repo
+            #print(self.cfg.fullpath(self.cfg.structureFolder))
+            repo.git.add(self.cfg.fullpath(self.cfg.structureFolder))
+            repo.index.commit("stored structures for %s" % head)
+            self.logger.info("Commited new database structures under %s" % (self.cfg.getHeadHash()))
 
     '''
     restore a specific db snapshot without executing any scripts added after

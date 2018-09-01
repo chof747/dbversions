@@ -6,6 +6,7 @@
     "logformat": "[%(asctime)s | %(name)s | %(levelname)-5s]: %(message)s"
   }, 
   "dbconfig": "database/db-config.json", 
+  "structure-files" : "database/generation",
   "environments": [
     "dev", 
     "test"

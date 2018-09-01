@@ -25,8 +25,37 @@ class DbDump(object):
         '''
         self.cfg = config
         self.logger = logging.getLogger('phpdbgit')
-        pass    
+        pass  
     
+    def extractallstructures(self, environment, target):
+        dbs = self.cfg.databases(environment)
+        targetpath = ("%s/%s" % (target, environment))
+        if not(os.path.isdir(targetpath)):
+            os.makedirs(targetpath)
+            
+        for db in dbs:
+            self.extractstructure(db, targetpath, db.replace(environment, ''))
+            
+    def extractstructure(self, database, target, sqlfile):
+    #***************************************************************************        
+        commit = self.cfg.getHeadHash()
+        dumpparams = [
+             'mysqldump', 
+             '-d',
+             '--databases', 
+             '--routines', 
+             '--add-drop-database', 
+             '--add-drop-table']
+        
+        dumpparams.append(database)
+        dumpfile = target + "/" + sqlfile + ".sql"
+        
+        self.cfg.logger.info("store structure script of %s for %s" % (database, commit))
+        self.cfg.logger.debug("stored in %s" % (dumpfile)) 
+        
+        with open(dumpfile, 'w') as f:
+            call(dumpparams, stdout = f)
+   
     def makealldumps(self, environment):
     #***************************************************************************
         dbs = self.cfg.databases(environment)

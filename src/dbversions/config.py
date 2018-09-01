@@ -59,6 +59,12 @@ class Config(object):
         self.logger = logging.getLogger('dbversions')
         self.setLoggingVerbosity(parameters['logger']['default-verbosity'])
         self.environments = parameters['environments']
+        if 'structure-files' in parameters:
+            self.structureFolder = parameters['structure-files']
+            if not(os.path.isdir(self.fullpath(self.structureFolder))):
+                os.mkdir(self.fullpath(self.structureFolder))
+        else:
+            self.structureFolder = None
             
     def setLoggingVerbosity(self, verbosity):
     #***************************************************************************
