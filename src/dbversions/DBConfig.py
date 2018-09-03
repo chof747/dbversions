@@ -132,8 +132,18 @@ class DBConfig(object):
 
     def _listScripts(self):
     #***************************************************************************    
-        scripts = self.gitAnalyzer.extractDBChanges(self.cfg.getHead(), self.gitAnalyzer.getNewestDumpCommit(self.cfg.getHead(), 
-                self.db.getAllDumpHashs()))
+        lastcommit_file = \
+          "%s/lastcommit" % self.cfg.fullpath(self.cfg.structureFolder)
+        if (isfile(lastcommit_file)):
+            with open(lastcommit_file, 'r') as f:
+                hash = f.readline()   
+            lastcommit = self.cfg.repo.commit(hash) 
+        else:
+            lastcommit = self.gitAnalyzer.getNewestDumpCommit(self.cfg.getHead(), 
+                self.db.getAllDumpHashs())
+            
+    
+        scripts = self.gitAnalyzer.extractDBChanges(self.cfg.getHead(), lastcommit)
         dbscripts = []
         for script in scripts:
             if isfile(script[0]):

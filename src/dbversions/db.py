@@ -28,7 +28,13 @@ class DbDump(object):
         pass  
     
     def extractallstructures(self, environment, target):
+    #***************************************************************************        
         dbs = self.cfg.databases(environment)
+        commit = self.cfg.getHeadHash()
+        
+        with open(("%s/lastcommit" % target), 'w') as f:
+            f.write(commit)
+
         targetpath = ("%s/%s" % (target, environment))
         if not(os.path.isdir(targetpath)):
             os.makedirs(targetpath)
