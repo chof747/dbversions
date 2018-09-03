@@ -145,7 +145,7 @@ class GitAnalyzer(object):
         traverses = self.traverse(head, dump)
         for traverse in traverses:
             pathscripts = {}
-            sequence = sys.maxint
+            sequence = sys.maxsize
             for c in traverse:
                 for script in self.extractSetupScripts(c):
                     #store the script with the hash of the commit as value

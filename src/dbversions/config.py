@@ -83,7 +83,7 @@ class Config(object):
         dblist = []
         if not environment == None:
             for db in dbs:
-                if (dbs[db].has_key(environment)):
+                if (environment in dbs[db]):
                     dblist.append(astring(dbs[db][environment]))
                 else:
                     self.logger.warn('Environment %s not available for database %s' 

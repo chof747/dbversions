@@ -43,7 +43,7 @@ if __name__ == '__main__':
             else:
                 assert False, "%s is an unhandled option" % (option)    
     except getopt.GetoptError as e:
-        print str(e)
+        print(e.msg)
         usage()
 
     cfg = Config(projectpath)

@@ -4,9 +4,9 @@ Created on 09. Okt. 2016
 @author: chof
 '''
 
-from dbversions import astring
-from gitanalyzer import GitAnalyzer
-from db import DbDump
+from . import astring
+from .gitanalyzer import GitAnalyzer
+from .db import DbDump
 from shutil import copyfile
 from os.path import join as joinPath, basename, isfile
 
@@ -38,7 +38,6 @@ class DBConfig(object):
         if (self.cfg.structureFolder != None):
             head = self.cfg.getHeadHash()
             repo = self.cfg.repo
-            #print(self.cfg.fullpath(self.cfg.structureFolder))
             repo.git.add(self.cfg.fullpath(self.cfg.structureFolder))
             repo.index.commit("stored structures for %s" % head)
             self.logger.info("Commited new database structures under %s" % (self.cfg.getHeadHash()))
@@ -154,7 +153,7 @@ class DBConfig(object):
     def list(self):
     #***************************************************************************    
         dbscripts = self._listScripts()
-        print ",".join(dbscripts)
+        print(','.join(dbscripts))
         
     def _buildScriptForEnvironment(self, outputPath, env):
     #***************************************************************************    
