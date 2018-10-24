@@ -13,7 +13,7 @@ with open('README.rst', 'r') as f:
     packageDescription += f.read()
 
 setup(name             = 'dbversions',
-      version          = '0.8.1',
+      version          = '0.8.6',
       author           = 'Christian Hofbauer',
       author_email     = 'chof@gmx.at',
       description      = 'A python tool and package that helps to keep a ' + 

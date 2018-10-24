@@ -78,18 +78,18 @@ class DBConfig(object):
       - is an existing one the db will be restored based on the latest restore 
         point and the scripts added since then
     '''
-    def checkout(self):
+    def checkout(self, newonly):
     #***************************************************************************    
         (commit, branch, newbranch) = self.gitAnalyzer.checkout()
         
-        if newbranch:
+        if newbranch and not newonly:
             self.logger.info("New branch %s created: mark and backup state at %s" 
                             % (branch, commit))
             for env in self.environments:
                 self.db.makealldumps(env)
         else:
             self.logger.info("Restore db structure for %s" % (branch))
-            self.switch()
+            self.switch(newonly)
         
     
     def merge(self, main, topic):
@@ -122,11 +122,15 @@ class DBConfig(object):
            no matter how often it has been recommitted since) but in the 
            current state of the head
     '''            
-    def switch(self):
+    def switch(self, newonly):
     #***************************************************************************    
         self.logger.info("Switch to branch at head %s" % self.cfg.getHead())
-        latestDump = self.restore()
-        self._updateDBByScriptsFrom(latestDump)
+        if newonly != True:
+            latestDump = self.restore()
+            self._updateDBByScriptsFrom(latestDump)
+        else:
+            for script in self._listScripts():
+                self.execute(script)
         
 
     def _listScripts(self):

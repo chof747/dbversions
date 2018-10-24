@@ -24,10 +24,11 @@ if __name__ == '__main__':
     projectpath = '.'
     verbosity = 0
     outputPath = '.'
+    newonly = False
     
     try:
         command = sys.argv[1]
-        optlist, args = getopt.getopt(sys.argv[2:], 'vp:e:o:s:', ["projectpath=", "env=", "script=", "output="])
+        optlist, args = getopt.getopt(sys.argv[2:], 'nvp:e:o:s:', ["projectpath=", "env=", "script=", "output="])
         
         for option, value in optlist:
             if option in ["-p", "--projectpath"]:
@@ -38,6 +39,8 @@ if __name__ == '__main__':
                 outputPath = value
             elif option in ['-e', '--env']:
                 environment = parseEnvironments(value)
+            elif option in ['-n']:
+                newonly = True
             elif option in ['-v']:
                 verbosity = verbosity + 1
             else:
@@ -69,7 +72,7 @@ if __name__ == '__main__':
         dbconfig.switch()
         
     elif (command == 'checkout'):
-        dbconfig.checkout()
+        dbconfig.checkout(newonly)
         
     elif (command == 'list'):
         dbconfig.list()

@@ -98,8 +98,8 @@ class Config(object):
     #***************************************************************************
         dbname = ''
         dbs = self._dbconfig['databases']
-        if dbs.has_key(db):
-            if dbs[db].has_key(env):
+        if db in dbs:
+            if env in dbs[db]:
                 dbname = dbs[db][env]
                 
         return dbname

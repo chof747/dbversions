@@ -131,7 +131,10 @@ class DbDump(object):
         scripttext = ""
         with open(script, 'rt') as scriptin:
             for line in scriptin:
-                line = unicode(line, "utf-8")
+                try:
+                    line = unicode(line, "utf-8")
+                except NameError:
+                    line = line
                 for db in dbs:
                     database = self.cfg.getDBName(db, environment)
                     if (database != ""):
