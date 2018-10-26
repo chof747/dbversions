@@ -80,16 +80,19 @@ class DBConfig(object):
     '''
     def checkout(self, newonly):
     #***************************************************************************    
-        (commit, branch, newbranch) = self.gitAnalyzer.checkout()
-        
-        if newbranch and not newonly:
-            self.logger.info("New branch %s created: mark and backup state at %s" 
-                            % (branch, commit))
-            for env in self.environments:
-                self.db.makealldumps(env)
-        else:
-            self.logger.info("Restore db structure for %s" % (branch))
+
+        if newonly: 
             self.switch(newonly)
+        else:
+            (commit, branch, newbranch) = self.gitAnalyzer.checkout()
+            if newbranch:
+                self.logger.info("New branch %s created: mark and backup state at %s" 
+                                 % (branch, commit))
+                for env in self.environments:
+                    self.db.makealldumps(env)
+            else:
+                self.logger.info("Restore db structure for %s" % (branch))
+                self.switch(newonly)
         
     
     def merge(self, main, topic):
